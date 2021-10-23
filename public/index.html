@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>viz_3.0</title>
+        <link href="./reset.css" rel="stylesheet"/>
+        <link href="./index.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <div id="p5-wrapper"></div>
+        <canvas id="hydra-canvas"></canvas>
+        <script src="js/hydra.js"></script>
+        <script>
+         const hydra = new Hydra({canvas:document.getElementById("hydra-canvas")});
+         hydra.setResolution(1080,1280)
+        </script>
+        <script src="js/main.js"></script>
+    </body>
+</html>

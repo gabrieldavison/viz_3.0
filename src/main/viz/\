@@ -1,0 +1,60 @@
+(ns viz.app
+  (:require [viz.macro :refer [h]]
+            [viz.p5 :refer [init-p5 load-sketch]]
+            ["webmidi" :as web-midi]))
+
+(defn init []
+  (println "hello world"))
+
+(def sketch (init-p5))
+
+(defn s1-draw [p]
+  (.background p 100 300 200)
+  (.circle p 100 100 100))
+
+(def s1-sketch
+  (let [x (atom 0) y (atom 0)]
+    {:draw
+     (fn [p]
+       (.background p 100 300 200)
+       (.square p @x @y 200)
+       (if (> (rand) 0.95)
+         (do
+           (reset! x (rand-int 500))
+           (reset! y (rand-int 500)))))}))
+
+
+
+;; (reset! p5-draw (:draw s1-sketch))
+
+(load-sketch s1-sketch)
+
+(h (src js/s1) (modulate (h(osc 10))) (out))
+
+;; web midi setup
+
+(.enable web-midi
+         (fn []
+           (js/console.log (.-inputs web-midi))))
+
+(def quneo-input (.getInputByName web-midi "QUNEO MIDI 1"))
+(js/console.log quneo-input)
+
+;; Lists all noteon messages
+;; e.note.number will give you the note number for switching based on noteon message.
+;; (.addListener quneo-input "noteon" "all"
+;;               (fn [e] (js/console.log e)))
+
+;; Lists all controlchange messages (really rinses the console as quneo puts out one for pressure as well as location which is probably the one I actually want.)
+;; e.controller.number and e.value are the properties I want
+;; filter based on number, update based on value
+;; (.addListener quneo-input "controlchange" "all"
+;;               (fn [e] (js/console.log e)))
+
+(def slider (atom 20))
+(.addListener quneo-input "controlchange" "all"
+              (fn [e] (cond (= 6(.. e -controller -number))
+                            ;;(reset! slider (.-value e))
+                            (println (.-value e)))))
+
+(h (osc (* 2 #(@slider))) (out))
