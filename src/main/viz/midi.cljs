@@ -21,12 +21,29 @@
                     :slider2 0
                     :slider3 0
                     :slider4 0}))
+(def buttons (atom {0 #(js/console.log 1)
+                    1 #(js/console.log 2)
+                    2 false
+                    3 false
+                    4 false
+                    5 false
+                    6 false
+                    7 false
+                    }))
+(defn set-button [key f]
+  (swap! buttons assoc key f ))
+
+(defn clear-buttons []
+  (reset! buttons {}))
+(clear-buttons)
 (defn get-val [atom]
   @atom)
 
 ;; web midi setup
 (defn get-num [e]
   (.. e -controller -number))
+(defn get-note-num [e]
+  (.. e -note -number))
 (defn update-slider [key e]
   (swap! sliders assoc key (.-value e)))
 
@@ -44,7 +61,14 @@
                                    (= 8 (get-num e))
                                    (update-slider :slider3 e)
                                    (= 9 (get-num e))
-                                   (update-slider :slider4 e))))))))
+                                   (update-slider :slider4 e))))
+       (.addListener quneo-input "noteon" "all"
+                     (fn [e]
+                       (let [num (get-note-num e)
+                             b (get @buttons num)]
+                         (if b (b))
+                         )))
+       ))))
 
 (defn s [key min max]
   (scale (key @sliders) min max))

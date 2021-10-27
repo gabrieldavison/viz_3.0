@@ -4,8 +4,18 @@
             [cljs.core.async :refer [go]]
             [cljs.core.async.interop :refer-macros [<p!]]))
 
+
+(defn create-webgl [p]
+  (.createCanvas p (.-windowWidth p) (.-windowHeight p) (.-WEBGL p)))
+
+(defn create-2d [p]
+  (.createCanvas p (.-windowWidth p) (.-windowHeight p)))
+
 (def sketch1
-    {:draw
+  {:setup
+   (fn [p]
+     (create-webgl p))
+   :draw
      (fn [p]
          (.background p 200)
          (.rotateY p (s :slider2 -1 1))
@@ -39,7 +49,11 @@
 (defn deg->rad [v]
   (* (/ v 180) Math/PI))
 (def sketch2
-  {:draw
+  {:setup
+   (fn [p]
+     (create-webgl p))
+
+   :draw
    (fn [p]
      (let [h  0
            k  0
@@ -80,6 +94,10 @@
     {:preload
      (fn [p]
        (reset! skull (.loadImage p "./assets/skull.png")))
+     :setup
+     (fn [p]
+       (create-webgl p))
+
      :draw
      (fn [p]
        (let [width 8
@@ -147,6 +165,7 @@
          (reset! skull loaded-skull)))
      :setup
      (fn [p]
+       (create-webgl p)
        (.textureMode p (.-NORMAL p)))
      :draw
      (fn [p]
@@ -168,6 +187,7 @@
          (reset! skull loaded-skull)))
      :setup
      (fn [p]
+       (create-webgl p)
        (.textureMode p (.-NORMAL p)))
      :draw
      (fn [p]
@@ -195,24 +215,304 @@
   (let [skull (atom false)
         sq (atom (gen-rand-square 400 800))
         new-sq (atom (gen-rand-square 400 800))
-        easing 0.09]
+        easing 0.15]
     {:preload
      (fn [p]
-       (let [loaded-skull (.loadImage p "./assets/skull.png")]
+       (let [loaded-skull (.loadImage p "./assets/full.png")]
          (reset! skull loaded-skull)))
      :setup
      (fn [p]
+       (create-webgl p)
        (.textureMode p (.-NORMAL p)))
      :draw
      (fn [p]
-       (.background p 200)
+       (.background p 255)
        (.texture p @skull)
        (.beginShape p)
        (doseq [v @sq]
          (.vertex p (:x v) (:y v) 0 (:n1 v) (:n2 v)))
        (.endShape p (.-CLOSE p))
        (reset! sq (map #(ease-square %1 %2 easing) @sq @new-sq))
-       (if (= 0 (mod (.-frameCount p) 5))
+       (if (= 0 (mod (.-frameCount p) 10))
          (reset! new-sq (gen-rand-square 400 800)))
        )
      }))
+
+(def sketch7
+  (let [full (atom false)
+        eyes (atom false)
+        mouth (atom false)]
+    {:preload
+     (fn [p]
+       (let [l-full (.loadImage p "./assets/full.png")
+             l-eyes (.loadImage p "./assets/eyes.png")
+             l-mouth (.loadImage p "./assets/mouth.png")]
+         (reset! full l-full)
+         (reset! eyes l-eyes)
+         (reset! mouth l-mouth)))
+     :setup
+     (fn [p]
+       (create-webgl p))
+
+     :draw
+     (fn [p]
+       (.background p 255)
+       (.texture p @full)
+       ;; (if (= 0 (mod (.-frameCount p) 30))
+       ;;   (if (> 0.8 (rand))
+       ;;     (let [pics [@eyes @mouth]]
+       ;;       (.texture p (rand-nth pics)))))
+       (.noStroke p)
+       (.plane p 800)
+)}))
+
+(defn gen-vera-sq [max-sq-size min-sq-size sq-dec max-offset]
+  ;; :x :y size
+  (map (fn [size]
+         {:x (- (rand-int (* 2 max-offset))
+                   max-offset)
+          :y (- (rand-int (* 2 max-offset))
+                   max-offset)
+          :size size})
+       (reverse (range min-sq-size max-sq-size sq-dec))))
+(gen-vera-sq 500 5 50 30)
+
+(def sketch8
+  (let [max-sq-size 900
+        min-sq-size 30
+        ;; sq-dec 100
+        min-offset 20
+        weight 1]
+    {:setup
+     (fn [p]
+       (create-webgl p)
+       (.noFill p)
+       (.strokeWeight p 8))
+     :draw
+     (fn [p]
+       (let [max-offset (s :slider3 100 500)
+             sq-dec (s :slider4 5 400)]
+         (if (= 0 (mod (.-frameCount p) 7))
+           (do
+             (.background p 255)
+             (doseq [s (gen-vera-sq max-sq-size min-sq-size sq-dec max-offset)]
+               (.push p)
+               (.translate p (:x s) (:y s))
+               (.plane p (:size s) )
+               (.pop p))
+             ))))}
+    ;;)
+  ))
+
+(def sketch9
+  (let [g (atom 255)
+        s (atom 100)
+        c-x (atom 0)
+        c-y (atom 0)
+        circle (atom false)]
+
+    {:preload
+     (fn [p]
+       (let [circle-l (.loadImage p "./assets/circle-inv.png")]
+         (reset! circle circle-l)
+         ))
+     :setup
+     (fn [p]
+       (create-webgl p)
+       (.frameRate p 30)
+       (.background p 0))
+     :draw
+     (fn [p]
+       (let [g-dec 0.8
+             s-inc 0.6
+             x-max 100
+             y-max 600]
+         ;; (.noStroke p)
+         ;; (.texture p @circle)
+         ;; (.plane p 600)
+         (.rotateX p 1.5)
+         (.noStroke p)
+         (.background p 0)
+         (.fill p 255 255 255 @g)
+         ;; (.translate p @c-x @c-y 0) ;; THis doesnt seem to be translating on y axis
+         (.cylinder p @s 1) ;; could be too cpu intensive?
+         ;; Is there a way to do this more functionally? with a seq?
+         (swap! g - g-dec)
+         (swap! s + s-inc)
+
+         ;; (js/console.log @g)
+         (if (<= @g 25)
+           (do (reset! g 255)
+               ;; (js/console.log @c-x @c-y)
+               ;; (reset! c-x (- (rand-int (* 2 x-max)) x-max))
+               ;; (reset! c-y (- (rand-int (* 2 y-max)) y-max))
+               ;; (js/console.log @c-y)
+               (reset! s 1)))))}))
+
+;; (def s-partial-observer
+;;   (let [heart (atom false)]
+;;     {:preload
+;;     (fn [p]
+;;       (let [heart-l (.loadImage p "./assets/circle.png")]
+;;         (reset! heart heart-l)))
+;;     :setup
+;;     (fn [p]
+;;       (create-2d p)
+;;       )
+;;     :draw
+;;      (fn [p]
+;;        (if (= 0 (mod (.-frameCount p) 60))
+;;          (do
+;;            (.background p 255)
+;;            (dotimes [n 30]
+;;              (.image p @heart
+;;                      (- (rand-int (.-width p)) 150)
+;;                      (- (rand-int (.-height p)) 150)
+;;                      300 300)))))
+;;      }))
+
+(def s-partial-observer-lines
+  (let [heart (atom false)]
+    {:preload
+     (fn [p]
+      (let [heart-l (.loadImage p "./assets/circle.png")]
+        (reset! heart heart-l)))
+     :setup
+     (fn [p]
+       (create-2d p)
+
+      )
+    :draw
+     (fn [p]
+       (let [width (.-width p)
+             height (.-height p)]
+         (.strokeWeight p 5)
+         (if (= 0 (mod (.-frameCount p) 300))
+           (.background p 255))
+         (if (= 0 (mod (.-frameCount p) 6))
+
+           (.line p
+                  (rand-int width)
+                  (rand-int height)
+                  (rand-int width)
+                  (rand-int height)))))
+     }))
+
+(def s-partial-observer-head
+  (let [head (atom false)]
+    {
+     :preload
+     (fn [p]
+      (let [head-l (.loadImage p "./assets/full.png")]
+        (reset! head head-l)
+        (js/console.log "preload")))
+     :setup
+     (fn [p]
+       (create-2d p)
+       (js/console.log "setup"))
+     :draw
+     (fn [p]
+       (let [width (.-width p)
+             height (.-height p)]
+         (.strokeWeight p 5)
+         (if (= 0 (mod (.-frameCount p) 300))
+           (.background p 255))
+         ;; (if (= 0 (mod (.-frameCount p) 6))
+         ;;   (.image p @head 100 100 100 100))
+         ))
+     }))
+(defn rand-between [min max]
+  (+ min (rand-int (- max min))))
+
+(defn gen-rand-spheres [n max-x max-y min-size max-size]
+  (map (fn [i]
+         (let [z-max 1000]
+           {:x (- (rand-int (* 2 max-x)) max-x)
+            :y (- (rand-int (* 2 max-y)) max-y)
+            :z (- (rand-int (* 2 z-max)) z-max)
+            :x-r (rand-between 200 800)
+            :y-r (rand-between 200 800)
+            :z-r (rand-between 200 800)
+            :size (+ min-size (rand-int (- max-size min-size)))}))
+       (range n)))
+
+(gen-rand-spheres 5 10 10 10 100)
+(def feel-so
+  (let [spheres (atom false)]
+    {
+     :preload
+     (fn [p] ())
+     :setup
+     (fn [p]
+       (create-webgl p)
+       (reset! spheres (gen-rand-spheres 200 1000 800 20 100)))
+     :draw
+     (fn [p]
+       (.background p 0)
+       (.rotateY p (/ (.millis p) 12000))
+       (.normalMaterial p)
+       (.noStroke p)
+       (doseq [sp @spheres]
+         (.push p)
+         (.translate p (:x sp) (:y sp) (:z sp))
+         (.rotateX p (/ (.millis p) (:x-r sp)))
+         (.rotateY p (/ (.millis p) (:y-r sp)))
+         (.rotateZ p (/ (.millis p) (:z-r sp)))
+         (.sphere p (:size sp))
+         (.pop p))
+       )}))
+
+(def feel-so-fast
+  (let [spheres (atom false)]
+    {
+     :preload
+     (fn [p] ())
+     :setup
+     (fn [p]
+       (create-webgl p)
+       (reset! spheres (gen-rand-spheres 200 1000 800 20 100)))
+     :draw
+     (fn [p]
+       (.background p 0)
+       (.rotateY p (/ (.millis p) 500))
+       (.normalMaterial p)
+       (.noStroke p)
+       (doseq [sp @spheres]
+         (.push p)
+         (.translate p (:x sp) (:y sp) (:z sp))
+         (.rotateX p (/ (.millis p) (:x-r sp)))
+         (.rotateY p (/ (.millis p) (:y-r sp)))
+         (.rotateZ p (/ (.millis p) (:z-r sp)))
+         (.sphere p (:size sp))
+         (.pop p))
+       )}))
+
+(def feel-so-fast-multi-rot
+  (let [spheres (atom false)
+        x-rot (rand-between 200 600)
+        y-rot (rand-between 200 600)
+        z-rot (rand-between 200 600)]
+    {
+     :preload
+     (fn [p] ())
+     :setup
+     (fn [p]
+       (create-webgl p)
+       (reset! spheres (gen-rand-spheres 200 1000 800 20 100)))
+     :draw
+     (fn [p]
+       (.background p 0)
+       (.rotateY p (/ (.millis p) y-rot))
+       (.rotateZ p (/ (.millis p) z-rot))
+       (.rotateX p (/ (.millis p) x-rot))
+       (.normalMaterial p)
+       (.noStroke p)
+       (doseq [sp @spheres]
+         (.push p)
+         (.translate p (:x sp) (:y sp) (:z sp))
+         (.rotateX p (/ (.millis p) (:x-r sp)))
+         (.rotateY p (/ (.millis p) (:y-r sp)))
+         (.rotateZ p (/ (.millis p) (:z-r sp)))
+         (.sphere p (:size sp))
+         (.pop p))
+       )}))
