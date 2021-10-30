@@ -47,14 +47,43 @@
 (defn update-slider [key e]
   (swap! sliders assoc key (.-value e)))
 
+
+;; (defn start-midi []
+;;   (.enable
+;;    web-midi
+;;    (fn []
+;;      ;; Different OS's use different names for these midi devices
+
+;;      (let [midi-input (.getInputByName web-midi "AudioSwift 3")]
+;;        ;; cc listeners
+;;        (js/console.log (.-inputs web-midi))
+;;        (.addListener midi-input "controlchange" "all"
+;;                      (fn [e]
+;;                        (let [s-num (get-num e)]
+
+;;                          (js/console.log s-num)
+;;                          (cond (= 1 s-num)
+;;                                (update-slider :slider1 e)
+;;                                (= 2 s-num)
+;;                                (update-slider :slider2 e)
+;;                                (= 3 s-num)
+;;                                (update-slider :slider3 e)
+;;                                (= 4 s-num)
+;;                                (update-slider :slider4 e)))))
+;;        ))))
 (defn start-midi []
   (.enable
    web-midi
    (fn []
-     (let [quneo-input (.getInputByName web-midi "QUNEO MIDI 1")]
+     ;; Different OS's use different names for these midi devices
+
+     (js/console.log (.-inputs web-midi))
+     (let [quneo-input (.getInputByName web-midi "QUNEO")]
        ;; cc listeners
        (.addListener quneo-input "controlchange" "all"
-                     (fn [e] (cond (= 6 (get-num e))
+                     (fn [e]
+                       ;; (js/console.log "CC!!")
+                       (cond (= 6 (get-num e))
                                    (update-slider :slider1 e)
                                    (= 7 (get-num e))
                                    (update-slider :slider2 e)
@@ -64,6 +93,7 @@
                                    (update-slider :slider4 e))))
        (.addListener quneo-input "noteon" "all"
                      (fn [e]
+                       ;; (js/console.log "button press")
                        (let [num (get-note-num e)
                              b (get @buttons num)]
                          (if b (b))

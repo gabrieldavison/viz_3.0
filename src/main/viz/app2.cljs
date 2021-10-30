@@ -3,7 +3,7 @@
             [viz.p5 :refer [init-p5 init-sketch]]
             ;; [viz.sketches.scratch :refer [sketch1 sketch2 sketch3 sketch4 sketch5 sketch6 sketch7 sketch8 sketch9 s-partial-observer-lines s-partial-observer-head]]
             [viz.sketches.scratch :as sk]
-            [viz.midi :refer [start-midi s set-button clear-buttons]]
+            [viz.midi :refer [start-midi s clear-buttons]]
             [viz.maths :refer [scale]]
             [viz.kb :refer [setup-kb set-k]]))
 
@@ -25,14 +25,14 @@
 (defn ooh-ah []
   (clear-buttons)
   (init-sketch sk/sketch7)
-  (set-button 0 (fn [] (h (src s1)
+  (set-k "q" (fn [] (h (src s1)
                           (modulate (h (osc #(s :slider1 0 100))))
                           (blend (h (src o1) (diff o0)) 0.1)
                           (modulate (h (noise 300)) #(s :slider2 0.01 0.1))
                           (invert)
                           (out))))
 
-  (set-button 1 (fn [] (h (src s1)
+  (set-k "w" (fn [] (h (src s1)
                           (modulate (h (osc #(s :slider1 0 100))))
                           (blend (h (src o1) (diff o0)) 0.1)
                           (modulate (h (noise 300)) #(s :slider2 0 0.1))
@@ -40,14 +40,14 @@
                           (modulate (h (noise 200) (pixelate 20 20)) #(s :slider3 0 0.8))
                           (out))))
 
-  (set-button 2 (fn [] (h (src s1)
+  (set-k "e" (fn [] (h (src s1)
                           (modulate (h (osc #(s :slider1 0 100))))
                           (blend (h (src o1) (diff o0)) 0.1)
                           (modulate (h (noise 300)) #(s :slider2 0 0.1))
                           (invert)
                           (diff (h (osc 50 0.9) (pixelate 1 1)))
                           (out))))
-  (set-button 3 (fn [] (h (src s1)
+  (set-k "r" (fn [] (h (src s1)
                           (modulate (h (osc #(s :slider1 0 100))))
                           (blend (h (src o1) (diff o0)) 0.1)
                           ;; (modulate (h (noise 300)) #(s :slider2 0 0.1))
@@ -59,7 +59,7 @@
 (defn disaster-pop []
   (clear-buttons)
   (init-sketch sk/sketch8)
-  (set-button 0 (fn []
+  (set-k "q" (fn []
                   (h (src s1)
                      (blend (h (src o0)) 0.5)
                      ;; (modulate (h(voronoi 1000)) #(s :slider2 0 0.05))
@@ -67,7 +67,7 @@
                                                        #(s :slider2 5 100))) #(s :slider1 0 0.9))
                      (contrast 3)
                      (out))))
-  (set-button 1 (fn []
+  (set-k "w" (fn []
                   (h (src s1)
                      (blend (h (src o0)) 0.5)
                      (modulate (h(voronoi 1000)) 0.02)
@@ -80,7 +80,7 @@
 (defn glassbox[]
   (clear-buttons)
   (init-sketch sk/sketch9)
-  (set-button 0 (fn []
+  (set-k "q" (fn []
                   (h (src s1)
                      (modulate (h (osc 100)) #(s :slider1 0.01 0.2))
                      (scale 2.4)
@@ -91,7 +91,7 @@
                                #(s :slider3 0 0.2))
                      (contrast 2)
                      (out))))
-  (set-button 1 (fn []
+  (set-k "w" (fn []
                   (h (src s1)
                      (modulate (h (osc 100)) #(s :slider1 0.01 0.2))
                      (pixelate 200 200)
@@ -101,7 +101,7 @@
                      (kaleid #(s :slider3 5 8))
                      (add (h(src o1)))
                      (out))))
-  (set-button 2 (fn []
+  (set-k "e" (fn []
                   (h (src s1)
                      (modulate (h (osc 100)) #(s :slider1 0.01 0.2))
                      (pixelate 200 200)
@@ -117,7 +117,7 @@
 (defn partial-observer []
   (clear-buttons)
   (init-sketch sk/s-partial-observer-lines)
-  (set-button 0 (fn []
+  (set-k "q" (fn []
                   (init-sketch sk/s-partial-observer-lines)
                   (h (src s1)
                      (blend (h (src o0)) 0.95)
@@ -125,21 +125,17 @@
                      (modulate (h (osc 2 0.01))0.001)
                      (out))
                   ))
-  (set-button 1 (fn []
+  (set-k "w" (fn []
                   (init-sketch sk/s-partial-observer-lines)
                   (h (src s1)
                      (kaleid 2)
                      (blend (h (src o0)) 0.95)
                      (modulate (h (noise 5)) #(s :slider1 0 0.05))
                      (modulate (h (osc 2 0.01))0.001)
-                     (modulate (h (voronoi 10)
-                                  (pixelate 150 150)
-                                  (brightness 0.3)
-                                  (contrast 50)) #(s :slider2 0 0.05))
                      (out))
                   ))
-  (set-button 2 (fn []
-                  (init-sketch sk/s-partial-observer-lines-thick)
+  (set-k "e" (fn []
+                  (init-sketch sk/s-partial-observer-head)
                   (h (src s1)
                      (blend (h (src o0)) 0.95)
                      (modulate (h (noise 5)) #(s :slider1 0 0.05))
@@ -150,7 +146,7 @@
 ;; May need to adjust now that im running everyhting in a higher resolution
 (defn feel-so []
   (clear-buttons)
-  (set-button 0 (fn []
+  (set-k "q" (fn []
                   (init-sketch sk/feel-so)
                   (h
                    (src s1)
@@ -160,7 +156,7 @@
                    (contrast 2)
                    (out)
                    )))
-  (set-button 1 (fn []
+  (set-k "w" (fn []
                   (init-sketch sk/feel-so-fast)
                   (h
                    (src s1)
@@ -170,7 +166,7 @@
                    (contrast 2)
                    (out)
                    )))
-  (set-button 2 (fn []
+  (set-k "e" (fn []
                   (init-sketch sk/feel-so-fast-multi-rot)
                   (h
                    (src s1)
@@ -182,7 +178,7 @@
                    (blend (h (osc 70 0.7) (pixelate 1 1)) #(s :slider2 0 1))
                    (out)
                    )))
-  (set-button 3 (fn []
+  (set-k "r" (fn []
                   (init-sketch sk/feel-so-fast-multi-rot)
                   (h
                    (src s1)
@@ -198,7 +194,7 @@
 
 (defn nu-year []
   (clear-buttons)
-  (set-button 0 (fn []
+  (set-k "q" (fn []
                   (init-sketch sk/nu-year-many)
                   (h (src s1)
                      ;; (modulate (h (src o0) (diff (h (noise 10)))) #(s :slider1 0 0.8))
@@ -210,7 +206,7 @@
                      (blend (h (src o0)))
                      (contrast #(s :slider2 1 1.1))
                      (out))))
-  (set-button 1 (fn []
+  (set-k "w" (fn []
                   (init-sketch sk/nu-year-many-fast)
                   (h (src s1)
                      ;; (modulate (h (src o0) (diff (h (noise 10)))) #(s :slider1 0 0.8))
@@ -227,82 +223,46 @@
 
 (defn its-better []
   (clear-buttons)
-  (set-button 0 (fn []
+  (set-k "q" (fn []
                   (init-sketch sk/its-better-face)
                   (h (src s1)
-                     (modulate (h (osc 20) (rotate 0.5)) #(s :slider2 0 0.1))
-                     (pixelate (.fast (array 20 50 100 200) 100)
-                               (.fast (array 20 50 100 200) 100))
+                     (pixelate (.fast (array 20 50 100 200) 10)
+                               (.fast (array 20 50 100 200) 10))
                      (modulate (h (noise 100) (pixelate 50 50)) #(s :slider1 0 0.2))
                      (contrast 5)
                      (out))))
-  (set-button 1 (fn []
+  (set-k "w" (fn []
                   (init-sketch sk/its-better-face)
-                  (h (osc 200 0.3)
-                     (modulate (h (osc 50 0.2)) 0.7)
-                     (pixelate 10 10)
+                  (h (osc 2000 0.3)
+                     (modulate (h (osc 5 0.2)))
                      (layer (h (src s1)
-                              (pixelate (.fast (array 20 50 100 200) 100)
-                                        (.fast (array 20 50 100 200) 100)))0.8)
+                              (pixelate (.fast (array 20 50 100 200) 10)
+                                        (.fast (array 20 50 100 200) 10)))0.8)
                      (modulate (h (noise 100) (pixelate 50 50)) #(s :slider1 0 0.2))
                      (contrast 5)
                      (out))))
-  (set-button 2 (fn []
+  (set-k "e" (fn []
                   (init-sketch sk/its-better-face)
-                  (h (osc 60 0.6)
-                     (modulate (h (osc 10 0.2)))
-                     (brightness 0.2)
-                     (modulate (h (noise 100) (pixelate 50 50)) #(s :slider1 0.01 0.2))
+                  (h (osc 100 0.3)
+                     (modulate (h (osc 1000 0.9)))
                      (layer (h (src s1)
-                              (pixelate (.fast (array 20 50 100 200) 50)
-                                        (.fast (array 20 50 100 200) 50)))0.8)
+                              (pixelate (.fast (array 20 50 100 200) 10)
+                                        (.fast (array 20 50 100 200) 10)))0.8)
+                     (modulate (h (noise 100) (pixelate 50 50)) #(s :slider1 0 0.2))
                      (contrast 5)
-                     (invert)
                      (out)))))
 
-(defn intermission-light []
-  (init-sketch sk/its-better-face)
-  (h (noise 30)
-     (modulate (h (noise 30)) 0.8)
-     (layer (h (src s1)
-               (invert)
-               (modulate (h (src o0)
-                            (pixelate 100 100))
-                         #(s :slider2 0.03 0.5))) #(s :slider1 0 1))
-
-     (brightness 0.6)
-     (invert)
-     (modulate (h (noise 10) (pixelate 20 20)) #(s :slider3 0 1))
-     (blend (h (solid 1 1 1)) #(s :slider4 1 0))
-     (out)))
-
-(defn intermission-dark []
-  (init-sketch sk/its-better-face)
-  (h (noise 30)
-     (modulate (h (noise 30)) 0.8)
-     (layer(h (src s1)
-              (invert)
-               (modulate (h (src o0)
-                            (pixelate 100 100))
-                         #(s :slider2 0.03 0.5))))
-     (invert)
-     (invert)
-     (modulate (h (noise 10) (pixelate 20 20)) #(s :slider3 0 1))
-     (blend (h (solid 0 0 0)) #(s :slider4 1 0))
-     (out)))
 ;; (defn template []
 ;;   (clear-buttons)
 ;;   (init-sketch sketch9)
-;;   (set-button 0 (fn []
+;;   (set-k 0 (fn []
 ;;                   (h (src s1)
 ;;                      (out)))))
 
-(set-k 0 #(intermission-light))
-(set-k 9 #(intermission-dark))
 (set-k 1 #(disaster-pop))
-(set-k 2 #(glassbox))
-(set-k 3 #(partial-observer))
-(set-k 4 #(feel-so))
-(set-k 5 #(nu-year))
-(set-k 6 #(ooh-ah))
-(set-k 7 #(its-better))
+;; (ooh-ah)
+;; (glassbox)
+;; (partial-observer)
+;; (feel-so)
+;; (nu-year)
+;; (its-better)

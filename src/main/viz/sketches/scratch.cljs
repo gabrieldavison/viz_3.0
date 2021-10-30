@@ -386,8 +386,35 @@
      (fn [p]
        (let [width (.-width p)
              height (.-height p)]
-         (.strokeWeight p 5)
+         (.strokeWeight p 10)
          (if (= 0 (mod (.-frameCount p) 300))
+           (.background p 255))
+         (if (= 0 (mod (.-frameCount p) 6))
+
+           (.line p
+                  (rand-int width)
+                  (rand-int height)
+                  (rand-int width)
+                  (rand-int height)))))
+     }))
+
+(def s-partial-observer-lines-thick
+  (let [heart (atom false)]
+    {:preload
+     (fn [p]
+      (let [heart-l (.loadImage p "./assets/circle.png")]
+        (reset! heart heart-l)))
+     :setup
+     (fn [p]
+       (create-2d p)
+
+      )
+    :draw
+     (fn [p]
+       (let [width (.-width p)
+             height (.-height p)]
+         (.strokeWeight p 25)
+         (if (= 0 (mod (.-frameCount p) 800))
            (.background p 255))
          (if (= 0 (mod (.-frameCount p) 6))
 
@@ -415,7 +442,7 @@
        (let [width (.-width p)
              height (.-height p)]
          (.strokeWeight p 5)
-         (if (= 0 (mod (.-frameCount p) 300))
+         (if (= 0 (mod (.-frameCount p) 600))
            (.background p 255))
          ;; (if (= 0 (mod (.-frameCount p) 6))
          ;;   (.image p @head 100 100 100 100))
@@ -516,3 +543,81 @@
          (.sphere p (:size sp))
          (.pop p))
        )}))
+
+
+(defn gen-faces [num size-max x-max y-max rot-min rot-max]
+  (map (fn [i] {:size (rand-between 100 size-max)
+                :x (- (rand-between 0 x-max) (/ x-max 2))
+                :y (- (rand-between 0 y-max) (/ y-max 2))
+                :z (rand-between -200 200)
+                :rot (rand-between  rot-min rot-max)})
+       (range num)))
+
+
+(def its-better-face
+  (let [face (atom false)]
+    {:preload
+     (fn [p]
+       (reset! face (.loadImage p "./assets/full.png")))
+     :setup
+     (fn [p]
+       (create-webgl p)
+       (.noStroke p)
+       ;; (.fill p 0 0 0 0)
+       (.noFill p)
+       (.texture p @face))
+     :draw
+     (fn [p]
+       (.plane p 800))
+     }))
+(def nu-year-many
+  (let [face (atom false)
+        faces (atom false)]
+    {:preload
+     (fn [p]
+       (reset! face (.loadImage p "./assets/full.png")))
+     :setup
+     (fn [p]
+       (create-webgl p)
+       (.noStroke p)
+       ;; (.fill p 0 0 0 0)
+       (reset! faces (gen-faces 50 300 1500 1500 500 1200))
+       (.noFill p)
+       (.texture p @face))
+     :draw
+     (fn [p]
+       (.background p 255)
+       (doseq [f @faces]
+         (.push p)
+         (.translate p (:x f) (:y f) (:z f))
+         (.rotateY p (/ (.millis p) (:rot f)))
+         (.plane p (:size f))
+         (.pop p))
+       )
+     }))
+
+(def nu-year-many-fast
+  (let [face (atom false)
+        faces (atom false)]
+    {:preload
+     (fn [p]
+       (reset! face (.loadImage p "./assets/full.png")))
+     :setup
+     (fn [p]
+       (create-webgl p)
+       (.noStroke p)
+       ;; (.fill p 0 0 0 0)
+       (reset! faces (gen-faces 100 800 1000 1500 500 800))
+       (.noFill p)
+       (.texture p @face))
+     :draw
+     (fn [p]
+       (.background p 255)
+       (doseq [f @faces]
+         (.push p)
+         (.translate p (:x f) (:y f) (:z f))
+         (.rotateY p (/ (.millis p) (:rot f)))
+         (.plane p (:size f))
+         (.pop p))
+       )
+     }))
